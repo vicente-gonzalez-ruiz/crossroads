@@ -1,0 +1,19 @@
+{
+  "name": "crossroads",
+  "version": "0.1",
+  "description": "P2PSP server implementation",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "dev": "nodemon --ignore node_modules/ app.js",
+    "start": "node app.js"
+  },
+  "repository": "git@github.com:agauniyal/crossroads.git",
+  "author": "agauniyal <agauniyal@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^20.0.4",
+    "nodemon": "^1.11.0"
+  }
+}
