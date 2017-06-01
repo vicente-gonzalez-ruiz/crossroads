@@ -1,14 +1,10 @@
-const http = require('http');
+const express = require('express');
+const app = express();
 
-const hostname = '127.0.0.1';
-const port = 3000;
-
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('P2PSP Crossroads implementation.\n');
+app.get('/', (req, res) => {
+  res.send('P2PSP rest_server implementation.');
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+app.listen(3000, () => {
+  console.log('App started on port 3000!');
 });
