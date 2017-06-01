@@ -1,6 +1,6 @@
 const express = require('express');
 const config = require('./config/config');
-const channelApi = require('./api/channel');
+const channelApi = require('./routes/channelRoutes');
 
 const app = express();
 
