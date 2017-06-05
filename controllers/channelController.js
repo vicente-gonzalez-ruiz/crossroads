@@ -31,7 +31,7 @@ const addChannel = (req, res) => {
 
       const password = buf.toString('hex');
       return argon2
-        .hash(password)
+        .hash(password, { type: argon2.argon2id })
         .then(hash => {
           db.push({
             name: req.body.channelName,
@@ -72,7 +72,7 @@ const editChannel = (req, res) => {
 };
 
 const deleteChannel = (req, res) => {
-  if (req.body.channelName && req.body.channelUrl && req.body.channelPassword) {
+  if (req.body.channelUrl && req.body.channelPassword) {
     const index = db.findIndex(channel => channel.url === req.body.channelUrl);
     if (index !== -1) {
       return argon2
