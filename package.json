@@ -20,6 +20,7 @@
     "argon2": "^0.16.1",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
+    "lodash.omit": "^4.5.0",
     "morgan": "^1.8.2"
   }
 }
