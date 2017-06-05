@@ -1,6 +1,6 @@
-const db = require('../models/channelModel');
 const argon2 = require('argon2');
-
+const crypto = require('crypto');
+const db = require('../models/channelModel');
 
 const listAllChannels = (req, res) => {
   // make sure to set password = undefined
@@ -23,22 +23,28 @@ const getChannel = (req, res) => {
 };
 
 const addChannel = (req, res) => {
-  if (req.body.channelName && req.body.channelUrl && req.body.channelPassword) {
-    return argon2
-      .hash(req.body.channelPassword, {
-        type: argon2.argon2d
-      })
-      .then(hash => {
-        db.push({
-          name: req.body.channelName,
-          url: req.body.channelUrl,
-          password: hash
+  if (req.body.channelName && req.body.channelUrl) {
+    crypto.randomBytes(20, (err, buf) => {
+      if (err) {
+        return res.status(500).end();
+      }
+
+      const password = buf.toString('hex');
+      return argon2
+        .hash(password)
+        .then(hash => {
+          db.push({
+            name: req.body.channelName,
+            url: req.body.channelUrl,
+            password: hash
+          });
+          res.status(200).json({ channelPassword: password });
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).end();
         });
-        res.status(200).end();
-      })
-      .catch(err => {
-        res.status(500).end();
-      });
+    });
   } else {
     return res.status(400).end();
   }
@@ -57,6 +63,7 @@ const editChannel = (req, res) => {
           }
         })
         .catch(err => {
+          console.log(err);
           res.status(500).end();
         });
     }
@@ -77,6 +84,7 @@ const deleteChannel = (req, res) => {
           }
         })
         .catch(err => {
+          console.log(err);
           res.status(500).end();
         });
     }
