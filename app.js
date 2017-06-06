@@ -1,6 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-const config = require('./config/config');
+const config = require('./configs/config');
 const channelApi = require('./routes/channelRoutes');
 
 const app = express();

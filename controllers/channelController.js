@@ -8,7 +8,7 @@ const listAllChannels = (req, res) => {
   const result = db.map(channel => {
     return omit(channel, 'password');
   });
-  return res.status(200).json(result);
+  return res.json(result);
 };
 
 const getChannel = (req, res) => {
@@ -16,7 +16,7 @@ const getChannel = (req, res) => {
   if (result) {
     // make sure to set password = undefined
     result.password = undefined;
-    return res.status(200).json(result);
+    return res.json(result);
   } else {
     return res.status(400).end();
   }
@@ -43,7 +43,7 @@ const addChannel = (req, res) => {
           url: req.body.channelUrl,
           password: hash
         });
-        res.status(200).json({ channelPassword: password });
+        res.json({ channelPassword: password });
       })
       .catch(err => {
         console.log(err);
@@ -75,7 +75,7 @@ const editChannel = (req, res) => {
     .then(match => {
       if (match) {
         db[index].name = req.body.channelName;
-        res.status(200).end();
+        res.end();
       } else {
         res.status(401).end();
       }
@@ -104,7 +104,7 @@ const deleteChannel = (req, res) => {
     .then(match => {
       if (match) {
         db.splice(index, 1);
-        res.status(200).end();
+        res.end();
       } else {
         res.status(401).end();
       }
