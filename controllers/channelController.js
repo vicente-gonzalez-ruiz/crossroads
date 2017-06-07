@@ -1,118 +1,57 @@
-const argon2 = require('argon2');
 const crypto = require('crypto');
-const omit = require('lodash.omit');
+const argon2 = require('argon2');
 const db = require('../models/channelModel');
+const promisify = require('util').promisify;
+const generateApiKey = promisify(crypto.randomBytes);
 
 const listAllChannels = (req, res) => {
-  // make sure to set password = undefined
-  const result = db.map(channel => {
-    return omit(channel, 'password');
-  });
-  return res.json(result);
+  return res.json(db.getAllChannels());
 };
 
 const getChannel = (req, res) => {
-  const result = db.find(channel => channel.url === req.params.channelUrl);
-  if (result) {
-    // make sure to set password = undefined
-    result.password = undefined;
-    return res.json(result);
-  } else {
-    return res.status(400).end();
-  }
+  const result = db.getChannel(req.body.channelUrl);
+  return result ? res.json(result) : res.status(400).end();
 };
 
 const addChannel = (req, res) => {
-  if (!req.body.channelName || !req.body.channelUrl) {
-    return res.status(400).json({
-      message: 'Incomplete information provided.'
+  let password = undefined;
+  generateApiKey(20)
+    .then(buf => {
+      password = buf.toString('hex');
+      return argon2.hash(password);
+    })
+    .then(hash => {
+      const channel = {
+        name: req.body.channelName,
+        url: req.body.channelName + 'URL',
+        password: hash
+      };
+      if (db.addChannel(channel)) {
+        res.json({ channelUrl: channel.url, channelPassword: password });
+      } else {
+        reject();
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).end();
     });
-  }
-
-  crypto.randomBytes(20, (err, buf) => {
-    if (err) {
-      return res.status(500).end();
-    }
-
-    const password = buf.toString('hex');
-    return argon2
-      .hash(password, { type: argon2.argon2d })
-      .then(hash => {
-        db.push({
-          name: req.body.channelName,
-          url: req.body.channelUrl,
-          password: hash
-        });
-        res.json({ channelPassword: password });
-      })
-      .catch(err => {
-        console.log(err);
-        res.status(500).end();
-      });
-  });
 };
 
 const editChannel = (req, res) => {
-  if (
-    !req.body.channelName ||
-    !req.body.channelUrl ||
-    !req.body.channelPassword
-  ) {
-    return res.status(400).json({
-      message: 'Incomplete information provided.'
-    });
-  }
+  const newChannel = {
+    name: req.body.channelNewName
+  };
 
-  const index = db.findIndex(channel => channel.url === req.body.channelUrl);
-  if (index === -1) {
-    return res.status(400).json({
-      message: 'No channel found with given url.'
-    });
-  }
-
-  return argon2
-    .verify(db[index].password, req.body.channelPassword)
-    .then(match => {
-      if (match) {
-        db[index].name = req.body.channelName;
-        res.end();
-      } else {
-        res.status(401).end();
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).end();
-    });
+  return db.editChannel(req.body.channelUrl, newChannel)
+    ? res.end()
+    : res.status(500).end();
 };
 
-const deleteChannel = (req, res) => {
-  if (!req.body.channelUrl || !req.body.channelPassword) {
-    return res.status(400).json({
-      message: 'Incomplete information provided.'
-    });
-  }
-
-  const index = db.findIndex(channel => channel.url === req.body.channelUrl);
-  if (index === -1) {
-    return res.status(400).json({
-      message: 'No channel found with given url.'
-    });
-  }
-  return argon2
-    .verify(db[index].password, req.body.channelPassword)
-    .then(match => {
-      if (match) {
-        db.splice(index, 1);
-        res.end();
-      } else {
-        res.status(401).end();
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).end();
-    });
+const removeChannel = (req, res) => {
+  return db.removeChannel(req.body.channelUrl)
+    ? res.end()
+    : res.status(500).end();
 };
 
 module.exports = {
@@ -120,5 +59,5 @@ module.exports = {
   getChannel,
   addChannel,
   editChannel,
-  deleteChannel
+  removeChannel
 };

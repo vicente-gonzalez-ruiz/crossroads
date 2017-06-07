@@ -2,6 +2,10 @@ const express = require('express');
 const morgan = require('morgan');
 const config = require('./configs/config');
 const channelApi = require('./routes/channelRoutes');
+const db = require('./models/channelModel');
+
+// set database stub
+db.setDB([]);
 
 const app = express();
 app.use(morgan('dev'));
