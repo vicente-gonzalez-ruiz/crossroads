@@ -15,7 +15,7 @@ const getAllChannels = () => {
 
 const getChannel = url => {
   const c = db.find(channel => channel.url === url);
-  return c ? omit(channel, 'password') : false;
+  return c ? omit(c, 'password') : false;
 };
 
 const addChannel = channel => {

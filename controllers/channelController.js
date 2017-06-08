@@ -29,7 +29,7 @@ const addChannel = (req, res) => {
       if (db.addChannel(channel)) {
         res.json({ channelUrl: channel.url, channelPassword: password });
       } else {
-        reject();
+        reject(new Error('Error adding new channel'));
       }
     })
     .catch(err => {
