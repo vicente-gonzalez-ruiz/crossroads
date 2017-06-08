@@ -27,6 +27,10 @@ afterEach(() => {
   setDatabase([]);
 });
 
+afterAll(() => {
+  setDatabase(undefined);
+});
+
 // Tests begin here
 
 test('Lists all channels', () => {
@@ -62,7 +66,7 @@ test('Get single channel - Not Found', () => {
   expect(res.status.mock.calls[0][0]).toBe(400);
 });
 
-test('Add a channel - info provided', async () => {
+test('Add a channel', async () => {
   const req = { body: { channelName: 'newChannel' } };
   const res = { json: jest.fn() };
 
@@ -70,12 +74,58 @@ test('Add a channel - info provided', async () => {
   expect(res.json.mock.calls.length).toBe(1);
 });
 
-test('Add a channel - no info provided', async () => {
+test('Add a channel - bad', async () => {
   const req = { body: { channelName: undefined } };
   const res = { status: jest.fn() };
   res.status.mockReturnValue({ end: () => {} });
 
   await cntrl.addChannel(req, res);
+  expect(res.status.mock.calls.length).toBe(1);
+  expect(res.status.mock.calls[0][0]).toBe(500);
+});
+
+test('Edit a channel', async () => {
+  const addReq = { body: { channelName: 'newChannel' } };
+  const addRes = { json: jest.fn() };
+  await cntrl.addChannel(addReq, addRes);
+  const url = addRes.json.mock.calls[0][0].channelUrl;
+
+  const req = {
+    body: {
+      channelNewName: 'newChannel',
+      channelUrl: url
+    }
+  };
+  const res = { end: jest.fn() };
+
+  cntrl.editChannel(req, res);
+  expect(res.end.mock.calls.length).toBe(1);
+});
+
+test('Edit a channel - bad', () => {
+  const req = { body: { channelNewName: undefined } };
+  const res = { status: jest.fn() };
+  res.status.mockReturnValue({ end: () => {} });
+
+  cntrl.editChannel(req, res);
+  expect(res.status.mock.calls.length).toBe(1);
+  expect(res.status.mock.calls[0][0]).toBe(500);
+});
+
+test('Remove a channel', () => {
+  const req = { body: { channelUrl: 'url1' } };
+  const res = { end: jest.fn() };
+
+  cntrl.removeChannel(req, res);
+  expect(res.end.mock.calls.length).toBe(1);
+});
+
+test('Remove a channel - bad', () => {
+  const req = { body: { channelUrl: 'someNonExistingURL' } };
+  const res = { status: jest.fn() };
+  res.status.mockReturnValue({ end: () => {} });
+
+  cntrl.removeChannel(req, res);
   expect(res.status.mock.calls.length).toBe(1);
   expect(res.status.mock.calls[0][0]).toBe(500);
 });
