@@ -62,20 +62,20 @@ test('Get single channel - Not Found', () => {
   expect(res.status.mock.calls[0][0]).toBe(400);
 });
 
-test('Add a channel - info provided', () => {
+test('Add a channel - info provided', async () => {
   const req = { body: { channelName: 'newChannel' } };
   const res = { json: jest.fn() };
 
-  cntrl.addChannel(req, res);
+  await cntrl.addChannel(req, res);
   expect(res.json.mock.calls.length).toBe(1);
 });
 
-test('Add a channel - no info provided', () => {
+test('Add a channel - no info provided', async () => {
   const req = { body: { channelName: undefined } };
   const res = { status: jest.fn() };
   res.status.mockReturnValue({ end: () => {} });
 
-  cntrl.addChannel(req, res);
+  await cntrl.addChannel(req, res);
   expect(res.status.mock.calls.length).toBe(1);
   expect(res.status.mock.calls[0][0]).toBe(500);
 });

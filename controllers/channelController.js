@@ -15,7 +15,7 @@ const getChannel = (req, res) => {
 
 const addChannel = (req, res) => {
   let password = undefined;
-  generateApiKey(20)
+  return generateApiKey(20)
     .then(buf => {
       password = buf.toString('hex');
       return argon2.hash(password);
@@ -33,7 +33,6 @@ const addChannel = (req, res) => {
       }
     })
     .catch(err => {
-      console.log(err);
       res.status(500).end();
     });
 };
