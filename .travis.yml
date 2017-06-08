@@ -6,7 +6,10 @@ node_js:
   - "8"
   - "7"
 install:
-  - npm install -g codecov
+  - yarn global add codecov
+  - yarn
+script:
+  - yarn test
 after_success:
   - yarn coverage && codecov
 cache: yarn
