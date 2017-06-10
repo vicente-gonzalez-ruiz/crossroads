@@ -47,7 +47,7 @@ test('Lists all channels', () => {
 });
 
 test('Get single channel - Found', () => {
-  const req = { body: { channelUrl: 'url2' } };
+  const req = { params: { channelUrl: 'url2' } };
   const res = { json: jest.fn() };
 
   cntrl.getChannel(req, res);
@@ -57,13 +57,12 @@ test('Get single channel - Found', () => {
 });
 
 test('Get single channel - Not Found', () => {
-  const req = { body: { channelUrl: 'nourlfound' } };
-  const res = { status: jest.fn() };
-  res.status.mockReturnValue({ end: () => {} });
+  const req = { params: { channelUrl: 'nourlfound' } };
+  const res = { sendStatus: jest.fn() };
 
   cntrl.getChannel(req, res);
-  expect(res.status.mock.calls.length).toBe(1);
-  expect(res.status.mock.calls[0][0]).toBe(400);
+  expect(res.sendStatus.mock.calls.length).toBe(1);
+  expect(res.sendStatus.mock.calls[0][0]).toBe(400);
 });
 
 test('Add a channel', async () => {
@@ -76,12 +75,11 @@ test('Add a channel', async () => {
 
 test('Add a channel - bad', async () => {
   const req = { body: { channelName: undefined } };
-  const res = { status: jest.fn() };
-  res.status.mockReturnValue({ end: () => {} });
+  const res = { sendStatus: jest.fn() };
 
   await cntrl.addChannel(req, res);
-  expect(res.status.mock.calls.length).toBe(1);
-  expect(res.status.mock.calls[0][0]).toBe(500);
+  expect(res.sendStatus.mock.calls.length).toBe(1);
+  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
 });
 
 test('Edit a channel', async () => {
@@ -104,12 +102,11 @@ test('Edit a channel', async () => {
 
 test('Edit a channel - bad', () => {
   const req = { body: { channelNewName: undefined } };
-  const res = { status: jest.fn() };
-  res.status.mockReturnValue({ end: () => {} });
+  const res = { sendStatus: jest.fn() };
 
   cntrl.editChannel(req, res);
-  expect(res.status.mock.calls.length).toBe(1);
-  expect(res.status.mock.calls[0][0]).toBe(500);
+  expect(res.sendStatus.mock.calls.length).toBe(1);
+  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
 });
 
 test('Remove a channel', () => {
@@ -122,10 +119,9 @@ test('Remove a channel', () => {
 
 test('Remove a channel - bad', () => {
   const req = { body: { channelUrl: 'someNonExistingURL' } };
-  const res = { status: jest.fn() };
-  res.status.mockReturnValue({ end: () => {} });
+  const res = { sendStatus: jest.fn() };
 
   cntrl.removeChannel(req, res);
-  expect(res.status.mock.calls.length).toBe(1);
-  expect(res.status.mock.calls[0][0]).toBe(500);
+  expect(res.sendStatus.mock.calls.length).toBe(1);
+  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
 });

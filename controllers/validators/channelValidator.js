@@ -48,12 +48,12 @@ const auth = (req, res, next) => {
       if (match) {
         next();
       } else {
-        res.status(401).end();
+        res.sendStatus(401);
       }
     })
     .catch(err => {
       console.log(err);
-      res.status(500).end();
+      res.sendStatus(500);
     });
 };
 

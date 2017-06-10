@@ -135,11 +135,10 @@ test('Auth Validator - unauthorized', async () => {
   const password = addRes.json.mock.calls[0][0].channelPassword;
 
   const req = { body: { channelUrl: url, channelPassword: '007' } };
-  const res = { status: jest.fn() };
-  res.status.mockReturnValue({ end: () => {} });
+  const res = { sendStatus: jest.fn() };
   await check.auth(req, res, undefined);
-  expect(res.status.mock.calls.length).toBe(1);
-  expect(res.status.mock.calls[0][0]).toBe(401);
+  expect(res.sendStatus.mock.calls.length).toBe(1);
+  expect(res.sendStatus.mock.calls[0][0]).toBe(401);
 
   db.setDB([]);
 });

@@ -14,7 +14,8 @@
   "license": "MIT",
   "devDependencies": {
     "jest": "^20.0.4",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "supertest": "^3.0.0"
   },
   "dependencies": {
     "argon2": "^0.16.1",

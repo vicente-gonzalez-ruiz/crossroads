@@ -9,8 +9,8 @@ const listAllChannels = (req, res) => {
 };
 
 const getChannel = (req, res) => {
-  const result = db.getChannel(req.body.channelUrl);
-  return result ? res.json(result) : res.status(400).end();
+  const result = db.getChannel(req.params.channelUrl);
+  return result ? res.json(result) : res.sendStatus(400);
 };
 
 const addChannel = (req, res) => {
@@ -33,7 +33,7 @@ const addChannel = (req, res) => {
       }
     })
     .catch(err => {
-      res.status(500).end();
+      res.sendStatus(500);
     });
 };
 
@@ -44,13 +44,13 @@ const editChannel = (req, res) => {
 
   return db.editChannel(req.body.channelUrl, newChannel)
     ? res.end()
-    : res.status(500).end();
+    : res.sendStatus(500);
 };
 
 const removeChannel = (req, res) => {
   return db.removeChannel(req.body.channelUrl)
     ? res.end()
-    : res.status(500).end();
+    : res.sendStatus(500);
 };
 
 module.exports = {
