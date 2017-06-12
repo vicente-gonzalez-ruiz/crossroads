@@ -26,3 +26,18 @@ describe('[Integration]: Get one channel', () => {
     return request(app).get('/u4').expect(400);
   });
 });
+
+describe('[Integration]: Add one channel', () => {
+  test('success', () => {
+    db.setDB([]);
+    return request(app)
+      .post('/')
+      .send({ channelName: 'myFavChannel1' })
+      .expect(200)
+      .expect('Content-Type', /json/);
+  });
+  test('no channelName sent', () => {
+    db.setDB([]);
+    return request(app).post('/').expect(400);
+  });
+});

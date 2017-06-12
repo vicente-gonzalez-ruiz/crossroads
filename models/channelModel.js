@@ -15,7 +15,7 @@ const getAllChannels = () => {
 
 const getChannel = url => {
   const c = db.find(channel => channel.url === url);
-  return c ? omit(c, 'password') : false;
+  return c ? omit(c, ['password', 'url']) : false;
 };
 
 const addChannel = channel => {
@@ -25,6 +25,8 @@ const addChannel = channel => {
   db.push({
     name: channel.name,
     url: channel.url,
+    ip: channel.ip,
+    port: channel.port,
     password: channel.password
   });
   return true;

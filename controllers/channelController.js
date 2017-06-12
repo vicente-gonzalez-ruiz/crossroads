@@ -24,6 +24,8 @@ const addChannel = (req, res) => {
       const channel = {
         name: req.body.channelName,
         url: req.body.channelName + 'URL',
+        ip: '127.0.0.1',
+        port: 5200,
         password: hash
       };
       if (db.addChannel(channel)) {
