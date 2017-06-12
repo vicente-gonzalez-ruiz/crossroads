@@ -142,3 +142,21 @@ test('Auth Validator - unauthorized', async () => {
 
   db.setDB([]);
 });
+
+test('Auth Validator - error', async () => {
+  const database = [];
+  db.setDB(database);
+  const addReq = { body: { channelName: 'newChannel' } };
+  const addRes = { json: jest.fn() };
+  await cntrl.addChannel(addReq, addRes);
+  const url = addRes.json.mock.calls[0][0].channelUrl;
+  const password = addRes.json.mock.calls[0][0].channelPassword;
+
+  const req = { body: { channelUrl: url, channelPassword: undefined } };
+  const res = { sendStatus: jest.fn() };
+  await check.auth(req, res, undefined);
+  expect(res.sendStatus.mock.calls.length).toBe(1);
+  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
+
+  db.setDB([]);
+});
