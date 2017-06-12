@@ -1,6 +1,6 @@
 {
   "name": "crossroads",
-  "version": "0.1",
+  "version": "0.1.0",
   "description": "P2PSP server implementation",
   "main": "app.js",
   "scripts": {
