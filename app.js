@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const config = require('./configs/config');
 const channelApi = require('./routes/channelRoutes');
 const db = require('./models/channelModel');
+const logger = require('./utils/logger');
 
 // set database stub
 db.setDB([]);
@@ -16,4 +17,6 @@ app.get('/', (req, res) => {
 
 app.use('/channels', channelApi);
 
-app.listen(config.port);
+app.listen(config.port, () => {
+  logger('INFO', 'Starting P2PSP server');
+});

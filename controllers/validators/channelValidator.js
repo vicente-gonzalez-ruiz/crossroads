@@ -1,5 +1,6 @@
 const argon2 = require('argon2');
 const db = require('../../models/channelModel');
+const logger = require('../../utils/logger');
 
 const add = (req, res, next) => {
   if (!req.body.channelName) {
@@ -35,25 +36,25 @@ const remove = (req, res, next) => {
   }
 };
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const hash = db.getChannelHash(req.body.channelUrl);
   if (hash === null) {
     return res.status(400).json({
       message: 'No channel found with given url.'
     });
   }
-  return argon2
-    .verify(hash, req.body.channelPassword)
-    .then(match => {
-      if (match) {
-        next();
-      } else {
-        res.sendStatus(401);
-      }
-    })
-    .catch(err => {
-      res.sendStatus(500);
-    });
+
+  try {
+    const matched = await argon2.verify(hash, req.body.channelPassword);
+    if (matched) {
+      next();
+    } else {
+      res.sendStatus(401);
+    }
+  } catch (err) {
+    logger('ERROR', err.toString());
+    res.sendStatus(500);
+  }
 };
 
 module.exports = {

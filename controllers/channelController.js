@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const argon2 = require('argon2');
 const db = require('../models/channelModel');
+const logger = require('../utils/logger');
 const promisify = require('util').promisify;
 const generateApiKey = promisify(crypto.randomBytes);
 
@@ -13,30 +14,30 @@ const getChannel = (req, res) => {
   return result ? res.json(result) : res.sendStatus(400);
 };
 
-const addChannel = (req, res) => {
-  let password = undefined;
-  return generateApiKey(20)
-    .then(buf => {
-      password = buf.toString('hex');
-      return argon2.hash(password);
-    })
-    .then(hash => {
-      const channel = {
-        name: req.body.channelName,
-        url: req.body.channelName + 'URL',
-        ip: '127.0.0.1',
-        port: 5200,
-        password: hash
+const addChannel = async (req, res) => {
+  try {
+    const buf = await generateApiKey(20);
+    const hash = await argon2.hash(buf.toString('hex'));
+    const channel = {
+      name: req.body.channelName,
+      url: req.body.channelName + 'URL',
+      ip: '127.0.0.1',
+      port: 5200,
+      password: hash
+    };
+    if (db.addChannel(channel)) {
+      const response = {
+        channelUrl: channel.url,
+        channelPassword: buf.toString('hex')
       };
-      if (db.addChannel(channel)) {
-        res.json({ channelUrl: channel.url, channelPassword: password });
-      } else {
-        reject(new Error('Error adding new channel'));
-      }
-    })
-    .catch(err => {
-      res.sendStatus(500);
-    });
+      res.json(response);
+    } else {
+      throw new Error('Error adding new channel');
+    }
+  } catch (err) {
+    res.sendStatus(500);
+    logger('ERROR', err.toString());
+  }
 };
 
 const editChannel = (req, res) => {
