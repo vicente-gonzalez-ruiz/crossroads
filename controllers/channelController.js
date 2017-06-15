@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const argon2 = require('argon2');
 const db = require('../models/channelModel');
-const logger = require('../utils/logger');
+const logger = require('kaho');
 const promisify = require('util').promisify;
 const generateApiKey = promisify(crypto.randomBytes);
 
@@ -36,7 +36,7 @@ const addChannel = async (req, res) => {
     }
   } catch (err) {
     res.sendStatus(500);
-    logger('ERROR', err.toString());
+    logger('ERROR', err.toString(), err);
   }
 };
 

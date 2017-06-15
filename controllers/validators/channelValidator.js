@@ -1,6 +1,6 @@
 const argon2 = require('argon2');
 const db = require('../../models/channelModel');
-const logger = require('../../utils/logger');
+const logger = require('kaho');
 
 const add = (req, res, next) => {
   if (!req.body.channelName) {
@@ -52,7 +52,7 @@ const auth = async (req, res, next) => {
       res.sendStatus(401);
     }
   } catch (err) {
-    logger('ERROR', err.toString());
+    logger('ERROR', err.toString(), err);
     res.sendStatus(500);
   }
 };
