@@ -82,3 +82,39 @@ describe('[Integration]: Edit a channel', () => {
     return request(app).put('/').expect(400);
   });
 });
+
+describe('[Integration]: Delete a channel', () => {
+  test('success', () => {
+    db.setDB([]);
+
+    return request(app)
+      .post('/')
+      .send({ channelName: 'myChannel' })
+      .then(res => {
+        const deleteReq = {
+          channelUrl: res.body.channelUrl,
+          channelPassword: res.body.channelPassword
+        };
+        return request(app).delete('/').send(deleteReq).expect(200);
+      });
+  });
+
+  test('wrong auth', () => {
+    db.setDB([]);
+    return request(app)
+      .post('/')
+      .send({ channelName: 'myChannel' })
+      .then(res => {
+        const deleteReq = {
+          channelUrl: res.body.channelUrl,
+          channelPassword: 'Pass123'
+        };
+        return request(app).delete('/').send(deleteReq).expect(401);
+      });
+  });
+
+  test('incomplete information sent', () => {
+    db.setDB([]);
+    return request(app).delete('/').expect(400);
+  });
+});
