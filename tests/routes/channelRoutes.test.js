@@ -6,13 +6,21 @@ const app = express();
 const router = require('../../routes/channelRoutes');
 app.use(router);
 
+beforeEach(() => {
+  db.setDB([]);
+});
+
+afterEach(() => {
+  db.setDB([]);
+});
+
 describe('[Integration]: List all channels', () => {
   test('Without setting db', () => {
+    db.setDB(undefined);
     return request(app).get('/').expect(500);
   });
 
   test('With correct db', () => {
-    db.setDB([]);
     return request(app).get('/').expect(200);
   });
 });
@@ -31,7 +39,6 @@ describe('[Integration]: Get one channel', () => {
 
 describe('[Integration]: Add a channel', () => {
   test('success', () => {
-    db.setDB([]);
     return request(app)
       .post('/')
       .send({ channelName: 'myFavChannel1' })
@@ -40,15 +47,12 @@ describe('[Integration]: Add a channel', () => {
   });
 
   test('no channelName sent', () => {
-    db.setDB([]);
     return request(app).post('/').expect(400);
   });
 });
 
 describe('[Integration]: Edit a channel', () => {
   test('success', () => {
-    db.setDB([]);
-
     return request(app)
       .post('/')
       .send({ channelName: 'myChannel' })
@@ -63,7 +67,6 @@ describe('[Integration]: Edit a channel', () => {
   });
 
   test('wrong auth', () => {
-    db.setDB([]);
     return request(app)
       .post('/')
       .send({ channelName: 'myChannel' })
@@ -78,15 +81,12 @@ describe('[Integration]: Edit a channel', () => {
   });
 
   test('no channelNewName sent', () => {
-    db.setDB([]);
     return request(app).put('/').expect(400);
   });
 });
 
 describe('[Integration]: Delete a channel', () => {
   test('success', () => {
-    db.setDB([]);
-
     return request(app)
       .post('/')
       .send({ channelName: 'myChannel' })
@@ -100,7 +100,6 @@ describe('[Integration]: Delete a channel', () => {
   });
 
   test('wrong auth', () => {
-    db.setDB([]);
     return request(app)
       .post('/')
       .send({ channelName: 'myChannel' })
@@ -114,7 +113,6 @@ describe('[Integration]: Delete a channel', () => {
   });
 
   test('incomplete information sent', () => {
-    db.setDB([]);
     return request(app).delete('/').expect(400);
   });
 });
