@@ -7,12 +7,14 @@
     "test": "jest",
     "coverage": "jest --coverage",
     "dev": "nodemon --ignore node_modules/ app.js",
+    "gen-docs": "documentation build app.js -f md -o docs/methods.md",
     "start": "node app.js"
   },
   "repository": "git@github.com:agauniyal/crossroads.git",
   "author": "agauniyal <agauniyal@outlook.com>",
   "license": "MIT",
   "devDependencies": {
+    "documentation": "^4.0.0-rc.1",
     "jest": "^20.0.4",
     "nodemon": "^1.11.0",
     "supertest": "^3.0.0"

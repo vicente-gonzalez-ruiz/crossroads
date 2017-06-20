@@ -3,6 +3,12 @@
  * presence of appropriate data in req object and/or authorization process for
  * modifying exisiting data. Should be called before actual controller methods.
  *
+ * Exports methods
+ *  - add
+ *  - edit
+ *  - remove
+ *  - auth
+ *
  * @module controllers/validators/channelValidator
  */
 
@@ -17,7 +23,7 @@ const logger = require('kaho');
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
- * @returns {Undefined}
+ * @returns {undefined}
  */
 const add = (req, res, next) => {
   if (!req.body.channelName) {
@@ -37,7 +43,7 @@ const add = (req, res, next) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
- * @returns {Undefined}
+ * @returns {undefined}
  */
 const edit = (req, res, next) => {
   if (
@@ -61,7 +67,7 @@ const edit = (req, res, next) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
- * @returns {Undefined}
+ * @returns {undefined}
  */
 const remove = (req, res, next) => {
   if (!req.body.channelUrl || !req.body.channelPassword) {
@@ -81,7 +87,7 @@ const remove = (req, res, next) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
- * @returns {Undefined}
+ * @returns {undefined}
  */
 const auth = async (req, res, next) => {
   const hash = db.getChannelHash(req.body.channelUrl);

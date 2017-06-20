@@ -1,3 +1,18 @@
+/**
+ * ChannelController module - Contains various methods for acting as controller
+ * layer between models and routes. Proper validators must be placed before them
+ * to validate/authorize requests.
+ *
+ * Exports methods
+ *  - listAllChannels
+ *  - getChannel
+ *  - addChannel
+ *  - editChannel
+ *  - removeChannel
+ *
+ * @module controllers/validators/channelController
+ */
+
 const crypto = require('crypto');
 const argon2 = require('argon2');
 const db = require('../models/channelModel');
@@ -5,6 +20,14 @@ const logger = require('kaho');
 const promisify = require('util').promisify;
 const generateApiKey = promisify(crypto.randomBytes);
 
+/**
+ * Main controller method for listing out all channels currently present in
+ * database. Response is sent in JSON format.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {JSON} JSON encoded array of objects containing channel information
+ */
 const listAllChannels = (req, res) => {
   return res.json(db.getAllChannels());
 };
