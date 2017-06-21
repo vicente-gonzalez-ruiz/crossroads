@@ -2,14 +2,27 @@
 
 ### Table of Contents
 
+-   [configs/config](#configsconfig)
 -   [port](#port)
 -   [controllers/validators/channelController](#controllersvalidatorschannelcontroller)
 -   [listAllChannels](#listallchannels)
+-   [getChannel](#getchannel)
+-   [addChannel](#addchannel)
+-   [editChannel](#editchannel)
+-   [removeChannel](#removechannel)
 -   [controllers/validators/channelValidator](#controllersvalidatorschannelvalidator)
 -   [add](#add)
 -   [edit](#edit)
 -   [remove](#remove)
 -   [auth](#auth)
+
+## configs/config
+
+Config module containing useful constants used throughout the application.
+
+Exports following constants
+
+-   port
 
 ## port
 
@@ -41,6 +54,58 @@ database. Response is sent in JSON format.
 -   `res` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express response object
 
 Returns **[JSON](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON)** JSON encoded array of objects containing channel information
+
+## getChannel
+
+Controller method for getting information about a single channel with given
+channel url. Response is sent in JSON format, HTTP 400 for wrong url.
+
+**Parameters**
+
+-   `req` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express request object
+-   `res` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express response object
+
+Returns **[JSON](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON)** JSON encoded object containing channel information
+
+## addChannel
+
+Controller method for adding a new channel with given channel name. Newly
+created channel's password and url are returned along with HTTP 200, on error
+HTTP 500 is returned instead. For every server error, logger is fed with err
+stack which shall be printed on attached [process.stdout].
+
+**Parameters**
+
+-   `req` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express request object
+-   `res` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express response object
+
+Returns **any** HTTP status 200 for success, 500 for error
+
+## editChannel
+
+Controller method for editing a single channel with given channel url and its
+corresponding password. HTTP 200 is returned if successful, otherwise HTTP
+500 for error.
+
+**Parameters**
+
+-   `req` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express request object
+-   `res` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express response object
+
+Returns **any** HTTP status 200 for success, 500 for error
+
+## removeChannel
+
+Controller method for removing a single channel with given channel url and
+its corresponding password. HTTP 200 is returned if successful, otherwise
+HTTP 500 for error.
+
+**Parameters**
+
+-   `req` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express request object
+-   `res` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express response object
+
+Returns **any** HTTP status 200 for success, 500 for error
 
 ## controllers/validators/channelValidator
 

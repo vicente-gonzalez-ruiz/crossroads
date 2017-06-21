@@ -32,11 +32,29 @@ const listAllChannels = (req, res) => {
   return res.json(db.getAllChannels());
 };
 
+/**
+ * Controller method for getting information about a single channel with given
+ * channel url. Response is sent in JSON format, HTTP 400 for wrong url.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {JSON} JSON encoded object containing channel information
+ */
 const getChannel = (req, res) => {
   const result = db.getChannel(req.params.channelUrl);
   return result ? res.json(result) : res.sendStatus(400);
 };
 
+/**
+ * Controller method for adding a new channel with given channel name. Newly
+ * created channel's password and url are returned along with HTTP 200, on error
+ * HTTP 500 is returned instead. For every server error, logger is fed with err
+ * stack which shall be printed on attached [process.stdout].
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns HTTP status 200 for success, 500 for error
+ */
 const addChannel = async (req, res) => {
   try {
     const buf = await generateApiKey(20);
@@ -63,6 +81,15 @@ const addChannel = async (req, res) => {
   }
 };
 
+/**
+ * Controller method for editing a single channel with given channel url and its
+ * corresponding password. HTTP 200 is returned if successful, otherwise HTTP
+ * 500 for error.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns HTTP status 200 for success, 500 for error
+ */
 const editChannel = (req, res) => {
   const newChannel = {
     name: req.body.channelNewName
@@ -73,6 +100,15 @@ const editChannel = (req, res) => {
     : res.sendStatus(500);
 };
 
+/**
+ * Controller method for removing a single channel with given channel url and
+ * its corresponding password. HTTP 200 is returned if successful, otherwise
+ * HTTP 500 for error.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns HTTP status 200 for success, 500 for error
+ */
 const removeChannel = (req, res) => {
   return db.removeChannel(req.body.channelUrl)
     ? res.end()
