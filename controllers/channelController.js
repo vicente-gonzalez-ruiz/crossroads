@@ -29,7 +29,9 @@ const generateApiKey = promisify(crypto.randomBytes);
  * @returns {JSON} JSON encoded array of objects containing channel information
  */
 const listAllChannels = (req, res) => {
-  return res.json(db.getAllChannels());
+  let result = db.getAllChannels(req.query.limit, req.query.offset);
+  result = result === undefined ? [] : result;
+  return result ? res.json(result) : res.sendStatus(500);
 };
 
 /**

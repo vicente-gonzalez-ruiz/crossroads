@@ -1,127 +1,226 @@
 const cntrl = require('../../controllers/channelController');
-const setDatabase = require('../../models/channelModel').setDB;
-
-// setup mock database for each test
-beforeEach(() => {
-  const database = [
-    {
-      name: 'c1',
-      url: 'url1',
-      password: '12345'
-    },
-    {
-      name: 'c2',
-      url: 'url2',
-      password: '56789'
-    },
-    {
-      name: 'c3',
-      url: 'url3',
-      password: 'abcde'
-    }
-  ];
-  setDatabase(database);
-});
+const db = require('../../models/channelModel');
+const Q = require('../../models/Q');
 
 afterEach(() => {
-  setDatabase([]);
-});
-
-afterAll(() => {
-  setDatabase(undefined);
+  db.setDB(undefined);
 });
 
 // Tests begin here
 
-test('Lists all channels', () => {
-  const res = { json: jest.fn() };
-  const req = undefined;
+describe('List all channels', () => {
+  test('no channels present', () => {
+    const res = { json: jest.fn() };
+    const req = { query: {} };
 
-  cntrl.listAllChannels(req, res);
-  expect(res.json.mock.calls.length).toBe(1);
-  expect(res.json.mock.calls[0][0].length).toBe(3);
+    const Database = {
+      prepare: () => Database,
+      all: () => undefined
+    };
+    db.setDB(Database);
 
-  res.json.mock.calls[0][0].forEach(channel => {
-    expect(channel.password).toBe(undefined);
+    cntrl.listAllChannels(req, res);
+    expect(res.json.mock.calls.length).toBe(1);
+    expect(res.json.mock.calls[0][0].length).toBe(0);
+  });
+
+  test('some channels present', () => {
+    const res = { json: jest.fn() };
+    const req = { query: { limit: 5, offset: 10 } };
+
+    const Database = { prepare: jest.fn(), all: jest.fn() };
+    Database.prepare.mockReturnValueOnce(Database);
+    Database.all.mockReturnValueOnce([{}, {}]);
+    db.setDB(Database);
+
+    cntrl.listAllChannels(req, res);
+
+    expect(Database.prepare.mock.calls.length).toBe(1);
+    expect(Database.prepare.mock.calls[0][0]).toBe(Q.selectAllChannels);
+
+    expect(Database.all.mock.calls.length).toBe(1);
+    expect(Database.all.mock.calls[0][0]).toEqual(req.query);
+
+    expect(res.json.mock.calls.length).toBe(1);
+    expect(res.json.mock.calls[0][0].length).toBe(2);
+  });
+
+  test('Error thrown', () => {
+    const res = { sendStatus: jest.fn() };
+    const req = { query: {} };
+
+    const Database = {
+      prepare: () => {
+        throw Error;
+      }
+    };
+    db.setDB(Database);
+
+    cntrl.listAllChannels(req, res);
+    expect(res.sendStatus.mock.calls.length).toBe(1);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(500);
   });
 });
 
-test('Get single channel - Found', () => {
-  const req = { params: { channelUrl: 'url2' } };
-  const res = { json: jest.fn() };
+describe('List single channel', () => {
+  test('Found', () => {
+    const req = { params: { channelUrl: 'url' } };
+    const res = { json: jest.fn() };
 
-  cntrl.getChannel(req, res);
-  expect(res.json.mock.calls.length).toBe(1);
-  expect(res.json.mock.calls[0][0].password).toBe(undefined);
-  expect(res.json.mock.calls[0][0].name).toBe('c2');
+    const Database = {
+      prepare: jest.fn(),
+      get: () => {
+        return {};
+      }
+    };
+    Database.prepare.mockReturnValueOnce(Database);
+    db.setDB(Database);
+
+    cntrl.getChannel(req, res);
+    expect(res.json.mock.calls.length).toBe(1);
+    expect(Database.prepare.mock.calls[0][0]).toBe(Q.selectChannel);
+  });
+
+  test('Not Found', () => {
+    const req = { params: { channelUrl: 'url' } };
+    const res = { sendStatus: jest.fn() };
+
+    const Database = {
+      prepare: () => Database,
+      get: () => {
+        return undefined;
+      }
+    };
+    db.setDB(Database);
+
+    cntrl.getChannel(req, res);
+    expect(res.sendStatus.mock.calls.length).toBe(1);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(400);
+  });
+
+  test('Error thrown', () => {
+    const req = { params: { channelUrl: 'url' } };
+    const res = { sendStatus: jest.fn() };
+
+    const Database = {
+      prepare: () => {
+        throw Error;
+      }
+    };
+    db.setDB(Database);
+
+    cntrl.getChannel(req, res);
+    expect(res.sendStatus.mock.calls.length).toBe(1);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(400);
+  });
 });
 
-test('Get single channel - Not Found', () => {
-  const req = { params: { channelUrl: 'nourlfound' } };
-  const res = { sendStatus: jest.fn() };
+describe('Add a new channel', () => {
+  test('successfully', async () => {
+    const req = { body: { channelName: 'newChannel' } };
+    const res = { json: jest.fn() };
 
-  cntrl.getChannel(req, res);
-  expect(res.sendStatus.mock.calls.length).toBe(1);
-  expect(res.sendStatus.mock.calls[0][0]).toBe(400);
+    const Database = {
+      prepare: jest.fn(),
+      run: jest.fn()
+    };
+    Database.prepare.mockReturnValueOnce(Database);
+    db.setDB(Database);
+
+    await cntrl.addChannel(req, res);
+
+    expect(Database.prepare.mock.calls[0][0]).toBe(Q.insertChannel);
+    expect(res.json.mock.calls.length).toBe(1);
+    expect(res.json.mock.calls[0][0].channelUrl).not.toBe(undefined);
+    expect(res.json.mock.calls[0][0].channelPassword).not.toBe(undefined);
+  });
+
+  test('fail', async () => {
+    const req = { body: { channelName: 'newChannel' } };
+    const res = { sendStatus: jest.fn() };
+
+    const Database = {
+      prepare: () => {
+        throw Error;
+      }
+    };
+    db.setDB(Database);
+
+    await cntrl.addChannel(req, res);
+
+    expect(res.sendStatus.mock.calls.length).toBe(1);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(500);
+  });
 });
 
-test('Add a channel', async () => {
-  const req = { body: { channelName: 'newChannel' } };
-  const res = { json: jest.fn() };
+describe('Editing an existing channel', () => {
+  test('successfully', async () => {
+    const req = { body: { channelNewName: 'newChannel' } };
+    const res = { end: jest.fn() };
 
-  await cntrl.addChannel(req, res);
-  expect(res.json.mock.calls.length).toBe(1);
+    const Database = {
+      prepare: jest.fn(),
+      run: jest.fn()
+    };
+    Database.prepare.mockReturnValueOnce(Database);
+    db.setDB(Database);
+
+    await cntrl.editChannel(req, res);
+
+    expect(Database.prepare.mock.calls[0][0]).toBe(Q.updateChannel);
+    expect(res.end.mock.calls.length).toBe(1);
+  });
+
+  test('fail', async () => {
+    const req = { body: { channelNewName: 'newChannel' } };
+    const res = { sendStatus: jest.fn() };
+
+    const Database = {
+      prepare: () => {
+        throw Error;
+      }
+    };
+    db.setDB(Database);
+
+    await cntrl.editChannel(req, res);
+
+    expect(res.sendStatus.mock.calls.length).toBe(1);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(500);
+  });
 });
 
-test('Add a channel - bad', async () => {
-  const req = { body: { channelName: undefined } };
-  const res = { sendStatus: jest.fn() };
+describe('Deleting an existing channel', () => {
+  test('successfully', async () => {
+    const req = { body: { channelUrl: 'someUrl' } };
+    const res = { end: jest.fn() };
 
-  await cntrl.addChannel(req, res);
-  expect(res.sendStatus.mock.calls.length).toBe(1);
-  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
-});
+    const Database = {
+      prepare: jest.fn(),
+      run: jest.fn()
+    };
+    Database.prepare.mockReturnValueOnce(Database);
+    db.setDB(Database);
 
-test('Edit a channel', async () => {
-  const addReq = { body: { channelName: 'newChannel' } };
-  const addRes = { json: jest.fn() };
-  await cntrl.addChannel(addReq, addRes);
-  const url = addRes.json.mock.calls[0][0].channelUrl;
+    await cntrl.removeChannel(req, res);
 
-  const req = {
-    body: {
-      channelNewName: 'newChannel',
-      channelUrl: url
-    }
-  };
-  const res = { end: jest.fn() };
+    expect(Database.prepare.mock.calls[0][0]).toBe(Q.deleteChannel);
+    expect(res.end.mock.calls.length).toBe(1);
+  });
 
-  cntrl.editChannel(req, res);
-  expect(res.end.mock.calls.length).toBe(1);
-});
+  test('fail', async () => {
+    const req = { body: { channelNewName: 'newChannel' } };
+    const res = { sendStatus: jest.fn() };
 
-test('Edit a channel - bad', () => {
-  const req = { body: { channelNewName: undefined } };
-  const res = { sendStatus: jest.fn() };
+    const Database = {
+      prepare: () => {
+        throw Error;
+      }
+    };
+    db.setDB(Database);
 
-  cntrl.editChannel(req, res);
-  expect(res.sendStatus.mock.calls.length).toBe(1);
-  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
-});
+    await cntrl.removeChannel(req, res);
 
-test('Remove a channel', () => {
-  const req = { body: { channelUrl: 'url1' } };
-  const res = { end: jest.fn() };
-
-  cntrl.removeChannel(req, res);
-  expect(res.end.mock.calls.length).toBe(1);
-});
-
-test('Remove a channel - bad', () => {
-  const req = { body: { channelUrl: 'someNonExistingURL' } };
-  const res = { sendStatus: jest.fn() };
-
-  cntrl.removeChannel(req, res);
-  expect(res.sendStatus.mock.calls.length).toBe(1);
-  expect(res.sendStatus.mock.calls[0][0]).toBe(500);
+    expect(res.sendStatus.mock.calls.length).toBe(1);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(500);
+  });
 });

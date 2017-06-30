@@ -17,6 +17,21 @@ const db = require('../../models/channelModel');
 const logger = require('kaho');
 
 /**
+ * Validator for listing all existing channels. Sanitizes limit and offset query
+ * and proceeds to next()
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {undefined}
+ */
+const list = (req, res, next) => {
+  req.query.limit = parseInt(req.query.limit) || undefined;
+  req.query.offset = parseInt(req.query.offset) || undefined;
+  next();
+};
+
+/**
  * Request body validator for adding a new channel route. Checks for channelName
  * is sent with the request, denies the request otherwise by returning HTTP 400.
  *
@@ -26,7 +41,7 @@ const logger = require('kaho');
  * @returns {undefined}
  */
 const add = (req, res, next) => {
-  if (!req.body.channelName) {
+  if (!req.body.channelName || typeof req.body.channelName !== 'string') {
     res.status(400).json({
       message: 'Incomplete information provided.'
     });
@@ -49,11 +64,12 @@ const edit = (req, res, next) => {
   if (
     !req.body.channelNewName ||
     !req.body.channelUrl ||
-    !req.body.channelPassword
+    !req.body.channelPassword ||
+    typeof req.body.channelNewName !== 'string' ||
+    typeof req.body.channelUrl !== 'string' ||
+    typeof req.body.channelPassword !== 'string'
   ) {
-    res.status(400).json({
-      message: 'Incomplete information provided.'
-    });
+    res.status(400).json({ message: 'Incomplete information provided.' });
   } else {
     next();
   }
@@ -70,10 +86,13 @@ const edit = (req, res, next) => {
  * @returns {undefined}
  */
 const remove = (req, res, next) => {
-  if (!req.body.channelUrl || !req.body.channelPassword) {
-    res.status(400).json({
-      message: 'Incomplete information provided.'
-    });
+  if (
+    !req.body.channelUrl ||
+    !req.body.channelPassword ||
+    typeof req.body.channelUrl !== 'string' ||
+    typeof req.body.channelPassword !== 'string'
+  ) {
+    res.status(400).json({ message: 'Incomplete information provided.' });
   } else {
     next();
   }
@@ -90,8 +109,8 @@ const remove = (req, res, next) => {
  * @returns {undefined}
  */
 const auth = async (req, res, next) => {
-  const hash = db.getChannelHash(req.body.channelUrl);
-  if (hash === null) {
+  const row = db.getChannelHash(req.body.channelUrl);
+  if (row === null) {
     res.status(400).json({
       message: 'No channel found with given url.'
     });
@@ -99,7 +118,7 @@ const auth = async (req, res, next) => {
   }
 
   try {
-    const matched = await argon2.verify(hash, req.body.channelPassword);
+    const matched = await argon2.verify(row.password, req.body.channelPassword);
     if (matched) {
       next();
     } else {
@@ -112,6 +131,7 @@ const auth = async (req, res, next) => {
 };
 
 module.exports = {
+  list,
   add,
   edit,
   remove,
