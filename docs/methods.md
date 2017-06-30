@@ -11,6 +11,7 @@
 -   [editChannel](#editchannel)
 -   [removeChannel](#removechannel)
 -   [controllers/validators/channelValidator](#controllersvalidatorschannelvalidator)
+-   [list](#list)
 -   [add](#add)
 -   [edit](#edit)
 -   [remove](#remove)
@@ -119,6 +120,19 @@ Exports methods
 -   edit
 -   remove
 -   auth
+
+## list
+
+Validator for listing all existing channels. Sanitizes limit and offset query
+and proceeds to next()
+
+**Parameters**
+
+-   `req` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express request object
+-   `res` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Express response object
+-   `next` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Express next middleware function
+
+Returns **[undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined)** 
 
 ## add
 

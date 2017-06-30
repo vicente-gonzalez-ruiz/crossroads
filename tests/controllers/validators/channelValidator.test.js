@@ -2,6 +2,52 @@ const check = require('../../../controllers/validators/channelValidator');
 const db = require('../../../models/channelModel');
 const cntrl = require('../../../controllers/channelController');
 
+describe('List channels validator', () => {
+  test('successfully', () => {
+    const req = { query: { limit: 10, offset: 20 } };
+    const res = undefined;
+    const next = jest.fn();
+
+    check.list(req, res, next);
+    expect(req.query.limit).toBe(10);
+    expect(req.query.offset).toBe(20);
+    expect(next.mock.calls.length).toBe(1);
+  });
+
+  test('bad input #1', () => {
+    const req = { query: { limit: undefined, offset: 0 } };
+    const res = undefined;
+    const next = jest.fn();
+
+    check.list(req, res, next);
+    expect(req.query.limit).toBe(undefined);
+    expect(req.query.offset).toBe(undefined);
+    expect(next.mock.calls.length).toBe(1);
+  });
+
+  test('bad input #2', () => {
+    const req = { query: { limit: 10, offset: 'zeroo' } };
+    const res = undefined;
+    const next = jest.fn();
+
+    check.list(req, res, next);
+    expect(req.query.limit).toBe(10);
+    expect(req.query.offset).toBe(undefined);
+    expect(next.mock.calls.length).toBe(1);
+  });
+
+  test('bad input #3', () => {
+    const req = { query: { limit: '10', offset: 'zero' } };
+    const res = undefined;
+    const next = jest.fn();
+
+    check.list(req, res, next);
+    expect(req.query.limit).toBe(10);
+    expect(req.query.offset).toBe(undefined);
+    expect(next.mock.calls.length).toBe(1);
+  });
+});
+
 describe('Add channel validator', () => {
   test('Success', () => {
     const req = { body: { channelName: 'channel1' } };
