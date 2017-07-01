@@ -22,29 +22,43 @@ const generateApiKey = promisify(crypto.randomBytes);
 
 /**
  * Main controller method for listing out all channels currently present in
- * database. Response is sent in JSON format.
+ * database. Response is sent in JSON encoded array of objects containing
+ * channel information, HTTP 500 for server error.
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @returns {JSON} JSON encoded array of objects containing channel information
  */
 const listAllChannels = (req, res) => {
   let result = db.getAllChannels(req.query.limit, req.query.offset);
   result = result === undefined ? [] : result;
-  return result ? res.json(result) : res.sendStatus(500);
+  if (result) {
+    result.forEach(channel => {
+      channel.splitterList = channel.splitterList.split(',');
+    });
+    res.json(result);
+  } else {
+    res.sendStatus(500);
+  }
 };
 
 /**
  * Controller method for getting information about a single channel with given
- * channel url. Response is sent in JSON format, HTTP 400 for wrong url.
+ * channel url. Response is sent in JSON JSON encoded object containing channel
+ * information, HTTP 400 for wrong url, HTTP 500 for server error.
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @returns {JSON} JSON encoded object containing channel information
  */
 const getChannel = (req, res) => {
   const result = db.getChannel(req.params.channelUrl);
-  return result ? res.json(result) : res.sendStatus(400);
+  if (result) {
+    result.splitterList = result.splitterList.split(',');
+    res.json(result);
+  } else if (result === undefined) {
+    res.sendStatus(400);
+  } else {
+    res.sendStatus(500);
+  }
 };
 
 /**
@@ -55,7 +69,6 @@ const getChannel = (req, res) => {
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @returns HTTP status 200 for success, 500 for error
  */
 const addChannel = async (req, res) => {
   try {
@@ -64,8 +77,8 @@ const addChannel = async (req, res) => {
     const channel = {
       name: req.body.channelName,
       url: req.body.channelName + 'URL',
-      ip: '127.0.0.1',
-      port: 5200,
+      splitterList: '127.0.0.1:33244,127.0.0.1:8001',
+      description: req.body.channelDescription,
       password: hash
     };
     if (db.addChannel(channel)) {
@@ -90,16 +103,18 @@ const addChannel = async (req, res) => {
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @returns HTTP status 200 for success, 500 for error
  */
 const editChannel = (req, res) => {
   const newChannel = {
-    name: req.body.channelNewName
+    name: req.body.channelNewName,
+    description: req.body.channelNewDescription
   };
 
-  return db.editChannel(req.body.channelUrl, newChannel)
-    ? res.end()
-    : res.sendStatus(500);
+  if (db.editChannel(req.body.channelUrl, newChannel)) {
+    res.end();
+  } else {
+    res.sendStatus(500);
+  }
 };
 
 /**
@@ -109,12 +124,13 @@ const editChannel = (req, res) => {
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @returns HTTP status 200 for success, 500 for error
  */
 const removeChannel = (req, res) => {
-  return db.removeChannel(req.body.channelUrl)
-    ? res.end()
-    : res.sendStatus(500);
+  if (db.removeChannel(req.body.channelUrl)) {
+    res.end();
+  } else {
+    res.sendStatus(500);
+  }
 };
 
 module.exports = {

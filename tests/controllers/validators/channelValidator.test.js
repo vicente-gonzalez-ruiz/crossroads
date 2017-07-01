@@ -50,7 +50,12 @@ describe('List channels validator', () => {
 
 describe('Add channel validator', () => {
   test('Success', () => {
-    const req = { body: { channelName: 'channel1' } };
+    const req = {
+      body: {
+        channelName: 'channel1',
+        channelDescription: 'Some description about this channel'
+      }
+    };
     const res = undefined;
     const next = jest.fn();
 
@@ -98,6 +103,7 @@ describe('Edit channel validator', () => {
     const req = {
       body: {
         channelNewName: 'channel2',
+        channelNewDescription: 'Some description about this channel',
         channelUrl: 'someUrl',
         channelPassword: '12345'
       }

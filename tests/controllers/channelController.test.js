@@ -30,7 +30,10 @@ describe('List all channels', () => {
 
     const Database = { prepare: jest.fn(), all: jest.fn() };
     Database.prepare.mockReturnValueOnce(Database);
-    Database.all.mockReturnValueOnce([{}, {}]);
+    Database.all.mockReturnValueOnce([
+      { splitterList: '127.0.0.1:23456, 127.0.0.1:12000' },
+      { splitterList: '192.168.1.5:23456, 192.168.1.2:12000' }
+    ]);
     db.setDB(Database);
 
     cntrl.listAllChannels(req, res);
@@ -70,7 +73,7 @@ describe('List single channel', () => {
     const Database = {
       prepare: jest.fn(),
       get: () => {
-        return {};
+        return { splitterList: '127.0.0.1:23456, 127.0.0.1:12000' };
       }
     };
     Database.prepare.mockReturnValueOnce(Database);
@@ -111,7 +114,7 @@ describe('List single channel', () => {
 
     cntrl.getChannel(req, res);
     expect(res.sendStatus.mock.calls.length).toBe(1);
-    expect(res.sendStatus.mock.calls[0][0]).toBe(400);
+    expect(res.sendStatus.mock.calls[0][0]).toBe(500);
   });
 });
 

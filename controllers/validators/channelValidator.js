@@ -41,10 +41,13 @@ const list = (req, res, next) => {
  * @returns {undefined}
  */
 const add = (req, res, next) => {
-  if (!req.body.channelName || typeof req.body.channelName !== 'string') {
-    res.status(400).json({
-      message: 'Incomplete information provided.'
-    });
+  if (
+    !req.body.channelName ||
+    !req.body.channelDescription ||
+    typeof req.body.channelDescription !== 'string' ||
+    typeof req.body.channelName !== 'string'
+  ) {
+    res.status(400).json({ message: 'Incomplete information provided.' });
   } else {
     next();
   }
@@ -63,9 +66,11 @@ const add = (req, res, next) => {
 const edit = (req, res, next) => {
   if (
     !req.body.channelNewName ||
+    !req.body.channelNewDescription ||
     !req.body.channelUrl ||
     !req.body.channelPassword ||
     typeof req.body.channelNewName !== 'string' ||
+    typeof req.body.channelNewDescription !== 'string' ||
     typeof req.body.channelUrl !== 'string' ||
     typeof req.body.channelPassword !== 'string'
   ) {
