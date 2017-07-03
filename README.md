@@ -15,3 +15,5 @@ Make sure you have latest node version (node v8 currently), though it should wor
  - Start the server - `npm run dev` (for yarn, use `yarn dev`)
  - Make changes, update test files in `tests` directory and run tests - `npm test` or `yarn test`
  - At the end, make sure to generate docs via - `npm run gen-docs` command (for yarn - `yarn gen-docs`)
+
+Make sure to check out auto-generated [documentation](docs) as well.
