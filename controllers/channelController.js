@@ -15,10 +15,11 @@
 
 const crypto = require('crypto');
 const argon2 = require('argon2');
-const db = require('../models/channelModel');
 const logger = require('kaho');
+const shortid = require('shortid');
 const promisify = require('util').promisify;
 const generateApiKey = promisify(crypto.randomBytes);
+const db = require('../models/channelModel');
 
 /**
  * Main controller method for listing out all channels currently present in
@@ -76,7 +77,7 @@ const addChannel = async (req, res) => {
     const hash = await argon2.hash(buf.toString('hex'));
     const channel = {
       name: req.body.channelName,
-      url: req.body.channelName + 'URL',
+      url: shortid.generate(),
       splitterList: '127.0.0.1:33244,127.0.0.1:8001',
       description: req.body.channelDescription,
       password: hash
