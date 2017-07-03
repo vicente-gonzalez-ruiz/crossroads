@@ -1,12 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
+const logger = require('kaho');
+const Database = require('better-sqlite3');
 const config = require('./configs/config');
 const channelApi = require('./routes/channelRoutes');
 const db = require('./models/channelModel');
-const logger = require('kaho');
 
-// set database stub
-db.setDB([]);
+db.setDB(new Database('p2psp_rest_server.db'));
+db.start();
 
 const app = express();
 app.use(morgan('dev'));

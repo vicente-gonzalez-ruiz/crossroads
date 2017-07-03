@@ -21,10 +21,12 @@
   },
   "dependencies": {
     "argon2": "^0.16.1",
+    "better-sqlite3": "^3.1.1",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "kaho": "^0.1.1",
     "lodash.omit": "^4.5.0",
-    "morgan": "^1.8.2"
+    "morgan": "^1.8.2",
+    "shortid": "^2.2.8"
   }
 }
